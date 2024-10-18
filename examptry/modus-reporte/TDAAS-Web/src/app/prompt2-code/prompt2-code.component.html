@@ -1,0 +1,26 @@
+<div class="root">
+  <div class="responses">
+    <div *ngFor="let response of responses" class="response-item">
+      <div [innerHTML]="response.renderedMarkdown"></div>
+    </div>
+  </div>
+  <div class="row queryContainer">
+    <div class="col-11 form-group">
+      <label for="query-text-area">{{userPromptTextAreaLabel}}</label>
+      <textarea #textarea class="form-control" id="query-text-area" [placeholder]="userPromptTextAreaPlaceholder"
+                aria-describedby="query-text-area-help-block"></textarea>
+      <small id="query-text-area-help-block" class="form-text text-muted">
+        {{userPromptHelperText}}
+      </small>
+      <modus-progress-bar [value]="progressBarValue" [maxValue]="progressBarMaxValue" min-value="0" size="compact"
+                          [hidden]="progressBarHidden"></modus-progress-bar>
+      <br />
+      <modus-toast type="danger" [hidden]="!showAlert">Failed, please try again!!!</modus-toast>
+    </div>
+    <div class="col-1">
+      <modus-button class="generateButton" (click)="generateClicked(textarea)">
+        Generate
+      </modus-button>
+    </div>
+  </div>
+</div>

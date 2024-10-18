@@ -1,0 +1,42 @@
+.root {
+  position: relative;
+  width: 100%;
+  bottom: 40px;
+}
+
+.queryContainer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: white;
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.generateButton {
+  margin-top: 36px;
+  margin-bottom: 60px;
+  align-items: end;
+}
+
+.responses {
+  margin-bottom: 130px;
+}
+
+.response-item {
+  padding: 20px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.outputRenderer {
+  border: 1px solid black;
+  height: inherit;
+  overflow: auto;
+  padding: 20px;
+  background-color: white;
+}

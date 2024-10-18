@@ -1,0 +1,1480 @@
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app-routing.module.ts
+
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthenticationComponent } from './authentication/authentication.component';
+import { AuthenticatedComponent } from './authenticated/authenticated.component';
+import { MainMenuComponent } from './main-menu/main-menu.component';
+import { LogoutComponent } from './logout/logout.component';
+import { AuthGuard } from '../guards/authentication-guard.guard';
+
+const routes: Routes = [
+  {path: 'authentication', component: AuthenticationComponent},
+  {path: 'authenticated', component: AuthenticatedComponent},
+  {path: 'mainMenu', component: MainMenuComponent, canActivate: [AuthGuard]},
+  {path: 'logout', component: LogoutComponent},
+  {path:'**', component: AuthenticationComponent},
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app.component.html
+
+<router-outlet></router-outlet>
+<!-- <app-sample></app-sample> -->
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app.component.spec.ts
+
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(() => TestBed.configureTestingModule({
+    imports: [RouterTestingModule],
+    declarations: [AppComponent]
+  }));
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have as title 'TDAAS-Web'`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('TDAAS-Web');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.content span')?.textContent).toContain('TDAAS-Web app is running!');
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app.component.ts
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'TDAAS-Web';
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\app.module.ts
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { MainMenuComponent } from './main-menu/main-menu.component';
+import { Code2CodeComponent } from './code2-code/code2-code.component';
+import { Prompt2CodeComponent } from './prompt2-code/prompt2-code.component';
+import { HttpClientModule } from '@angular/common/http';
+import { Prompt2CodeOutputComponent } from './prompt2-code-output/prompt2-code-output.component';
+import { SampleComponent } from './sample/sample.component';
+import { Image2CodeComponent } from './image2-code/image2-code.component';
+import { AuthenticationComponent } from './authentication/authentication.component';
+import { AuthenticationService } from '../services/authentication.service';
+import { AuthenticatedComponent } from './authenticated/authenticated.component';
+import { LogoutComponent } from './logout/logout.component';
+import { AssistantService } from '../services/assistant.service';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    MainMenuComponent,
+    Code2CodeComponent,
+    Prompt2CodeComponent,
+    Prompt2CodeOutputComponent,
+    SampleComponent,
+    Image2CodeComponent,
+    AuthenticationComponent,
+    AuthenticatedComponent,
+    LogoutComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule
+  ],
+  providers: [AuthenticationService, AssistantService],
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class AppModule { }
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authenticated\authenticated.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authenticated\authenticated.component.html
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authenticated\authenticated.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { AuthenticatedComponent } from './authenticated.component';
+
+describe('AuthenticatedComponent', () => {
+  let component: AuthenticatedComponent;
+  let fixture: ComponentFixture<AuthenticatedComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AuthenticatedComponent]
+    });
+    fixture = TestBed.createComponent(AuthenticatedComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authenticated\authenticated.component.ts
+
+import { Component } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-authenticated',
+  templateUrl: './authenticated.component.html',
+  styleUrls: ['./authenticated.component.css']
+})
+export class AuthenticatedComponent {
+
+
+  constructor(private authService: AuthenticationService, private router: Router) {
+
+  }
+
+  async ngOnInit() {
+    await this.authService.GetAuthCodeFromURLAndStoreInLocalStorage(this.router.url);
+    let result = await this.authService.GetAccessToken();
+    if (result) {
+      this.router.navigate(['mainMenu']);
+    }
+    else {
+      this.router.navigate(['authentication']);
+    }
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authentication\authentication.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authentication\authentication.component.html
+
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authentication\authentication.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { AuthenticationComponent } from './authentication.component';
+
+describe('AuthenticationComponent', () => {
+  let component: AuthenticationComponent;
+  let fixture: ComponentFixture<AuthenticationComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AuthenticationComponent]
+    });
+    fixture = TestBed.createComponent(AuthenticationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\authentication\authentication.component.ts
+
+import { Component } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
+
+@Component({
+  selector: 'app-authentication',
+  templateUrl: './authentication.component.html',
+  styleUrls: ['./authentication.component.css']
+})
+export class AuthenticationComponent {
+
+  constructor(private authService: AuthenticationService) {
+
+  }
+
+  ngOnInit() {
+    window.location.href = this.authService.GetAuthCodeUrl();
+  }
+
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\code2-code\code2-code.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\code2-code\code2-code.component.html
+
+<h1 style="margin-top: 40vh; margin-left: 45vw;">Coming Soon!!!</h1>
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\code2-code\code2-code.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { Code2CodeComponent } from './code2-code.component';
+
+describe('Code2CodeComponent', () => {
+  let component: Code2CodeComponent;
+  let fixture: ComponentFixture<Code2CodeComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [Code2CodeComponent]
+    });
+    fixture = TestBed.createComponent(Code2CodeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\code2-code\code2-code.component.ts
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-code2-code',
+  templateUrl: './code2-code.component.html',
+  styleUrls: ['./code2-code.component.css']
+})
+export class Code2CodeComponent {
+
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\image2-code\image2-code.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\image2-code\image2-code.component.html
+
+<h1 style="margin-top: 40vh; margin-left: 45vw;">Coming Soon!!!</h1>
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\image2-code\image2-code.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { Image2CodeComponent } from './image2-code.component';
+
+describe('Image2CodeComponent', () => {
+  let component: Image2CodeComponent;
+  let fixture: ComponentFixture<Image2CodeComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [Image2CodeComponent]
+    });
+    fixture = TestBed.createComponent(Image2CodeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\image2-code\image2-code.component.ts
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-image2-code',
+  templateUrl: './image2-code.component.html',
+  styleUrls: ['./image2-code.component.css']
+})
+export class Image2CodeComponent {
+
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\logout\logout.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\logout\logout.component.html
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\logout\logout.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { LogoutComponent } from './logout.component';
+
+describe('LogoutComponent', () => {
+  let component: LogoutComponent;
+  let fixture: ComponentFixture<LogoutComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [LogoutComponent]
+    });
+    fixture = TestBed.createComponent(LogoutComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\logout\logout.component.ts
+
+import { Component } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
+
+@Component({
+  selector: 'app-logout',
+  templateUrl: './logout.component.html',
+  styleUrls: ['./logout.component.css']
+})
+export class LogoutComponent {
+
+  constructor(private authService: AuthenticationService) {
+
+  }
+
+  ngOnInit() {
+     window.location.href = this.authService.LogoutUser();
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\main-menu\main-menu.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\main-menu\main-menu.component.html
+
+<modus-navbar id="blue-theme" variant="blue" (profileMenuSignOutClick) = "OnSignoutClick($event)" >
+</modus-navbar>
+
+<modus-tabs (tabChange) = "OnTabChange($event)"></modus-tabs>
+<app-prompt2-code *ngIf="visibleComponent === 'prompt2code'"></app-prompt2-code>
+<app-image2-code *ngIf="visibleComponent === 'image2code'"></app-image2-code>
+<app-code2-code *ngIf="visibleComponent === 'code2code'"></app-code2-code>
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\main-menu\main-menu.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { MainMenuComponent } from './main-menu.component';
+
+describe('MainMenuComponent', () => {
+  let component: MainMenuComponent;
+  let fixture: ComponentFixture<MainMenuComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [MainMenuComponent]
+    });
+    fixture = TestBed.createComponent(MainMenuComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\main-menu\main-menu.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { jwtDecode } from "jwt-decode";
+import { getItemFromLocalStorage } from '../../utils/localstorage-utils';
+import { SharedDataService } from '../../services/shared-data.service';
+
+@Component({
+  selector: 'app-main-menu',
+  templateUrl: './main-menu.component.html',
+  styleUrls: ['./main-menu.component.css']
+})
+export class MainMenuComponent implements OnInit{
+  public userDisplayPicturePath: string = 'data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" fill="f1f1f6" xmlns="http://www.w3.org/2000/svg"><path d="M18.15 15.3C17.25 15.9 16.85 16 16.15 16H15.85C15.15 16 14.75 15.95 13.85 15.3C12.9 14.55 12.1 13.85 11.45 12.8C10.7 11.75 10.4 10.8 10.4 9.6V5.6C10.4 2.5 12.9 0 16 0C19.1 0 21.6 2.5 21.6 5.6V9.6C21.6 10.8 21.25 11.75 20.55 12.8C19.9 13.85 19.1 14.6 18.15 15.3Z" fill="0e416c"/><path d="M20 16.7C22.95 17.45 26.15 18.4 26.15 18.4C29.6 19.35 32 22.5 32 26.1V30.4C32 31.3 31.3 32 30.4 32H1.6C0.7 32 0 31.3 0 30.4V26.1C0 22.5 2.4 19.35 5.85 18.4C5.85 18.4 9.05 17.4 12 16.7C12.55 18.25 14.3 19.2 16 19.2C17.7 19.2 19.45 18.2 20 16.7Z" fill="0e416c"/></svg>'
+  public userEmailID: string = "modus_user@trimble.com"
+  public userInitials: string = "MU"
+  public userName: string = "Modus User"
+
+  public visibleComponent: string = "prompt2code";
+  public prompt2CodeId = "prompt2code"
+  public code2CodeId = "code2code"
+  public image2CodeId = "image2code"
+
+  constructor(private router: Router, private authService: AuthenticationService, private sharedDataService: SharedDataService) {
+
+  }
+
+  ngOnInit() {
+    let tidIdToken = getItemFromLocalStorage("idToken")
+    if (tidIdToken) {
+      let tidIdTokenDecoded: any = jwtDecode(tidIdToken)
+      console.log(tidIdTokenDecoded);
+      console.log(tidIdTokenDecoded.nbf);
+      this.userEmailID = tidIdTokenDecoded.email;
+      this.userName = tidIdTokenDecoded.given_name + " " + tidIdTokenDecoded.family_name;
+      this.userDisplayPicturePath = tidIdTokenDecoded.picture;
+      this.sharedDataService.setTidIdTokenDecoded(tidIdTokenDecoded);
+    }
+    this.initNavBar();
+    this.initTabs();
+  }
+
+  initNavBar() {
+    const element: any = document.querySelector('modus-navbar');
+    element.logoOptions = {
+      primary: {
+        url: './assets/Images/Logo.png',
+        height: 24,
+      },
+      secondary: { url: 'https://modus.trimble.com/favicon.svg', height: 24 },
+    };
+    element.profileMenuOptions = {
+      avatarUrl: this.userDisplayPicturePath,
+      email: this.userEmailID,
+      initials: this.userInitials,
+      username: this.userName,
+    };
+  }
+
+  initTabs() {
+    const modusTabs: any = document.querySelector('modus-tabs');
+    modusTabs.tabs = [
+      {
+        active: true,
+        id: this.prompt2CodeId,
+        label: 'Prompt 2 Code',
+      },
+      {
+        id: this.image2CodeId,
+        label: 'Image 2 Code',
+      },
+      {
+        id: this.code2CodeId,
+        label: 'Code 2 Code',
+      },
+    ];
+  }
+
+  OnTabChange(eventParams: any) {
+    this.visibleComponent = eventParams.detail;
+    console.log('Selected Tab:', eventParams.detail);
+  }
+
+  OnSignoutClick(eventParams: any) {
+    this.router.navigate(['/logout']);
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code\prompt2-code.component.css
+
+.root {
+  position: relative;
+  width: 100%;
+  bottom: 40px;
+}
+
+.queryContainer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: white;
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.generateButton {
+  margin-top: 36px;
+  margin-bottom: 60px;
+  align-items: end;
+}
+
+.responses {
+  margin-bottom: 130px;
+}
+
+
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code\prompt2-code.component.html
+
+<div class="root">
+  <div class="responses">
+      <div *ngFor="let response of responses">
+          <app-prompt2-code-output [outputHTMLCode]="response.html" [outputScriptCode]="response.script"></app-prompt2-code-output>
+      </div>
+  </div>
+  <div class="row queryContainer">
+      <div class="col-11 form-group">
+          <label for="query-text-area">{{userPromptTextAreaLabel}}</label>
+          <textarea #textarea class="form-control" id="query-text-area" [placeholder]="userPromptTextAreaPlaceholder"
+              aria-describedby="query-text-area-help-block"></textarea>
+          <small id="query-text-area-help-block" class="form-text text-muted">
+              {{userPromptHelperText}}
+          </small>
+          <modus-progress-bar [value]="progressBarValue" [maxValue]="progressBarMaxValue" min-value="0" size="compact"
+              [hidden]="progressBarHidden"></modus-progress-bar>
+          <br />
+          <modus-toast type="danger" [hidden]="!showAlert">Failed, please try again!!!</modus-toast>
+      </div>
+      <div class="col-1">
+          <modus-button class="generateButton" (click)="generateClicked(textarea)">
+              Generate
+          </modus-button>
+      </div>
+  </div>
+</div>
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code\prompt2-code.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { Prompt2CodeComponent } from './prompt2-code.component';
+
+describe('Prompt2CodeComponent', () => {
+  let component: Prompt2CodeComponent;
+  let fixture: ComponentFixture<Prompt2CodeComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [Prompt2CodeComponent]
+    });
+    fixture = TestBed.createComponent(Prompt2CodeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code\prompt2-code.component.ts
+
+import { Component } from '@angular/core';
+import { AuthenticationService } from 'src/services/authentication.service';
+import { AssistantService } from 'src/services/assistant.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-prompt2-code',
+  templateUrl: './prompt2-code.component.html',
+  styleUrls: ['./prompt2-code.component.css']
+})
+export class Prompt2CodeComponent {
+  public userPromptTextAreaLabel: string = "Query to get modus components";
+  public userPromptTextAreaPlaceholder: string = "Post your query";
+  public userPromptHelperText: string = "For better results keep your query as detailed and accurate as possible. It might take ~1minute to get the output.";
+
+  public progressBarValue = 0;
+  public progressBarMaxValue = 5;
+  public progressBarHidden = true;
+  private progressBarIntervalId: any = null;
+  public showAlert: boolean = false;
+
+  public responses: { html: string, script: string }[] = [];
+
+  constructor(private authService: AuthenticationService,
+              private assistantService: AssistantService,
+              private router: Router) { }
+
+  public async generateClicked(textArea: any) {
+    console.log(textArea.value);
+    this.showAlert = false;
+    this.displayProgressBar();
+    var isAuthorized = await this.authService.ValidateAuthentication();
+    if (!isAuthorized) {
+      this.router.navigate(['authentication']);
+      return;
+    }
+
+    var response = await this.assistantService.GetAssistantResponseForMessage(textArea.value);
+    console.log("Response result is " + response);
+    this.progressBarValue = 0;
+    this.progressBarHidden = true;
+    this.onResponseReceived();
+
+    if (response == undefined) {
+      this.showAlert = true;
+      return;
+    }
+
+    const htmlCode = this.extractCodeBlocks(response, "html");
+    const scriptCode = this.extractCodeBlocks(response, "typescript");
+
+    if (htmlCode == "" && scriptCode == "") {
+      this.showAlert = true;
+      return;
+    }
+
+    this.responses.unshift({ html: htmlCode, script: scriptCode }); // Prepend new response
+    textArea.value = ''; // Clear the input field
+  }
+
+  private displayProgressBar() {
+    this.progressBarHidden = false;
+    this.progressBarIntervalId = setInterval(() => {
+      this.progressBarValue++;
+      if (this.progressBarValue == this.progressBarMaxValue - 1) {
+        clearInterval(this.progressBarIntervalId);
+      }
+    }, 10000);
+  }
+
+  private onResponseReceived() {
+    if (this.progressBarIntervalId !== null) {
+      clearInterval(this.progressBarIntervalId);
+      this.progressBarIntervalId = null;
+    }
+  }
+
+  private extractCodeBlocks(input: string, language: string): string {
+    const startMarker = `\`\`\`${language}`;
+    const endMarker = `\`\`\``;
+    const markerIndex = input.indexOf(startMarker);
+    if (markerIndex === -1) {
+      return '';
+    }
+    const startIndex = markerIndex + startMarker.length;
+    const endIndex = input.indexOf(endMarker, startIndex);
+    if (endIndex < 0) {
+      return '';
+    }
+    return input.substring(startIndex, endIndex).trim();
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code-output\prompt2-code-output.component.css
+
+.mainContainer {
+    margin-top: 75px;
+    margin-left: 37.5px;
+    margin-right: 37.5px;
+}
+
+.rootContainer {
+    position: relative;
+    height: 50vh;
+}
+
+.codeContainer {
+    padding: 20px;
+    height: inherit;
+}
+
+.codeContainerHeader {
+    height: 32px;
+    width: inherit;
+    background-color: #cbcdd6;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.codeContainerBodyRoot {
+    background-color: black;
+    height: inherit;
+    overflow: auto;
+    scrollbar-color: #cbcdd6;
+}
+
+.codeContainerBodyContent {
+    font-family: sans-serif;
+    color: white;
+    padding: 10px;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+.outputRenderer {
+    border: 1px solid black;
+    height: inherit;
+    overflow: auto;
+}
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code-output\prompt2-code-output.component.html
+
+<div class="mainContainer">
+    <div class="row rootContainer">
+        <div class="col-12 outputRenderer" [innerHTML]=outputContent [hidden]=showCode>
+        </div>
+        <div class="col-6 codeContainer" [hidden]=!showCode>
+            <div class="codeContainerHeader">
+                <modus-button (click)="onCopyCodeClicked()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                        class="mi-outline mi-file-copy" viewBox="0 0 24 24">
+                        <path
+                            d="M15 20H6V7c0-.55-.45-1-1-1s-1 .45-1 1v13c0 1.1.9 2 2 2h9c.55 0 1-.45 1-1s-.45-1-1-1Zm4.71-13.29L15.3 2.3a.99.99 0 0 0-.71-.29H9.5c-1.1 0-2 .9-2 2v12.5c0 1.1.9 2 2 2H18c1.1 0 2-.9 2-2v-9.1c0-.27-.11-.52-.29-.71ZM15 5l2 2s-2-.02-2 0V5Zm3 11.5H9.5V4H13v4c0 .55.45 1 1 1h4v7.5Z" />
+                    </svg>
+                    Copy Code
+                </modus-button>
+            </div>
+            <div class="codeContainerBodyRoot">
+                <pre><code class="language-html"><div class="codeContainerBodyContent" [innerHTML]="outputHTMLCode">
+                    
+                </div></code></pre>
+            </div>
+        </div>
+        <div class="col-6 codeContainer" [hidden]=!showCode>
+            <div class="codeContainerHeader">
+                <modus-button (click)="onCopyScriptClicked()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                        class="mi-outline mi-file-copy" viewBox="0 0 24 24">
+                        <path
+                            d="M15 20H6V7c0-.55-.45-1-1-1s-1 .45-1 1v13c0 1.1.9 2 2 2h9c.55 0 1-.45 1-1s-.45-1-1-1Zm4.71-13.29L15.3 2.3a.99.99 0 0 0-.71-.29H9.5c-1.1 0-2 .9-2 2v12.5c0 1.1.9 2 2 2H18c1.1 0 2-.9 2-2v-9.1c0-.27-.11-.52-.29-.71ZM15 5l2 2s-2-.02-2 0V5Zm3 11.5H9.5V4H13v4c0 .55.45 1 1 1h4v7.5Z" />
+                    </svg>
+                    Copy Script
+                </modus-button>
+            </div>
+            <div class="codeContainerBodyRoot">
+                <pre><code class="language-typescript"><div class="codeContainerBodyContent" [innerHTML]="outputScriptCode">
+                   
+                </div></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 100px; display: flex; justify-content: flex-end; align-items: end;">
+        <modus-button button-style="borderless" style="padding-right: 10px;"
+            (click)="onBackClicked()">Back</modus-button>
+        <modus-button [hidden]=!showCode (click)="onRenderClicked()">Render</modus-button>
+        <modus-button [hidden]=showCode (click)="onCodeClicked()">Code</modus-button>
+    </div>
+</div>
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code-output\prompt2-code-output.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { Prompt2CodeOutputComponent } from './prompt2-code-output.component';
+
+describe('Prompt2CodeOutputComponent', () => {
+  let component: Prompt2CodeOutputComponent;
+  let fixture: ComponentFixture<Prompt2CodeOutputComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [Prompt2CodeOutputComponent]
+    });
+    fixture = TestBed.createComponent(Prompt2CodeOutputComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\prompt2-code-output\prompt2-code-output.component.ts
+
+import { Component, ElementRef, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { timer } from 'rxjs';
+import {transpile} from 'typescript';
+import hljs from 'highlight.js';
+import typescript from 'highlight.js/lib/languages/typescript';
+import html from 'highlight.js/lib/languages/xml';
+
+@Component({
+  selector: 'app-prompt2-code-output',
+  templateUrl: './prompt2-code-output.component.html',
+  styleUrls: ['./prompt2-code-output.component.css']
+})
+export class Prompt2CodeOutputComponent {
+  public outputContent: SafeHtml = ""
+  public copiedCode = "Code Copied!"
+  public copiedScript = "Script Copied!"
+  @Input() public outputHTMLCode = "Code"
+  @Input() public outputScriptCode = "Script"
+  @Output() public backPressed = new EventEmitter()
+  public showCode: boolean = false
+
+  private outputJSCode = ""
+
+  constructor(private sanitizer: DomSanitizer, private elementRef: ElementRef) {
+    hljs.registerLanguage('typescript', typescript);
+    hljs.registerLanguage('html', html);
+  }
+
+  @Input() set hidden(value: boolean) {
+    this.elementRef.nativeElement.hidden = value;
+    if (value) {
+      this.showCode = true
+    }
+  };
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['outputHTMLCode']) {
+      //console.log("property change" + this.outputHTMLCode)
+      this.outputContent = this.sanitizer.bypassSecurityTrustHtml(this.outputHTMLCode)
+      this.copiedCode = this.outputHTMLCode
+      this.outputHTMLCode = hljs.highlight(this.outputHTMLCode, { language: 'html' }).value
+    }
+    
+    if (changes['outputScriptCode']) {
+      console.log("property change\n\n" + this.outputScriptCode)
+      this.outputJSCode = transpile(this.outputScriptCode)
+      const delayMilliseconds = 2000; // 2 seconds
+      timer(delayMilliseconds).subscribe(() => {
+        eval(this.outputJSCode)
+      });
+      this.copiedScript = this.outputScriptCode
+      this.outputScriptCode = hljs.highlight(this.outputScriptCode, { language: 'typescript' }).value
+    }
+  }
+
+  public onRenderClicked() {
+    this.showCode = false;
+  }
+
+  public onCodeClicked() {
+    this.showCode = true;
+  }
+
+  public onBackClicked() {
+    this.backPressed.emit()
+  }
+
+  public onCopyCodeClicked() {
+    this.copyStringToClipboard(this.copiedCode)
+  }
+
+  public onCopyScriptClicked() {
+    this.copyStringToClipboard(this.copiedScript)
+  }
+
+  private copyStringToClipboard(data: string) {
+    const { clipboard } = navigator;
+    clipboard.writeText(data)
+      .then(() => {
+        console.log('Text copied to clipboard: ' + data);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ' + err);
+      });
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\sample\sample.component.css
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\sample\sample.component.html
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\sample\sample.component.spec.ts
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { SampleComponent } from './sample.component';
+
+describe('SampleComponent', () => {
+  let component: SampleComponent;
+  let fixture: ComponentFixture<SampleComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [SampleComponent]
+    });
+    fixture = TestBed.createComponent(SampleComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\app\sample\sample.component.ts
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-sample',
+  templateUrl: './sample.component.html',
+  styleUrls: ['./sample.component.css']
+})
+export class SampleComponent {
+  ngOnInit() {
+   //Check output script here.
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\config\prod-config.ts
+
+//const APP_URL_BASE = "https://lemon-hill-0f0bd0a0f.5.azurestaticapps.net/authenticated";
+const APP_URL_BASE = "http://localhost:4200/authenticated";
+//const APP_LOGOUT_URL = "https://lemon-hill-0f0bd0a0f.5.azurestaticapps.net/authentication";
+const APP_LOGOUT_URL = "http://localhost:4200/authentication";
+const TID_URL_BASE = "https://id.trimble.com"
+
+const TDAAS_ASSISTANT_ID = "modus-01"
+
+const TRIMBLE_ASSISTANT_AGENTS_URL = "https://agw.construction-integration.trimble.cloud/trimbledeveloperprogram/assistants/v1/agents/"
+
+export const env = {
+    clientId: "d9d21ed0-14e7-4887-ba4b-d12ac2f2f466",
+    applicationName: "TDAAS",
+    authCodeUrl: `${TID_URL_BASE}/oauth/authorize`,
+    accessTokenUrl: `${TID_URL_BASE}/oauth/token`,
+    logoutUrl: `${TID_URL_BASE}/oauth/logout`,
+    redirectUrl: `${APP_URL_BASE}`,
+    tenantDomain: "Trimble.com",
+    logoutRedirectUrl: `${APP_LOGOUT_URL}`,
+    trimbleAssistantMessageURL: `${TRIMBLE_ASSISTANT_AGENTS_URL}${TDAAS_ASSISTANT_ID}/messages`,
+    applicationHomeUrl: `${APP_URL_BASE}`,
+    redirectPath: "/app/auth/tid-redirect",
+    registerPath: "/app/sign-out"
+}
+
+export const get = (key: string) => {
+    return env[key as keyof typeof env];
+  }
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\guards\authentication-guard.guard.spec.ts
+
+import { TestBed } from '@angular/core/testing';
+import { CanActivateFn } from '@angular/router';
+
+import { authenticationGuardGuard } from './authentication-guard.guard';
+
+describe('authenticationGuardGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) => 
+      TestBed.runInInjectionContext(() => authenticationGuardGuard(...guardParameters));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(executeGuard).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\guards\authentication-guard.guard.ts
+
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
+import { inject } from '@angular/core';
+
+
+export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    const authenticationService = inject(AuthenticationService);
+    const router = inject(Router);
+    
+    return authenticationService.ValidateAuthentication().then(
+      (isAuthenticated => isAuthenticated? true : router.createUrlTree(['/authentication']))
+    );
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\index.html
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TDAASWeb</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/Images/favIcon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@trimbleinc/modus-bootstrap@1.6.2/dist/modus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/xml.min.js"></script>
+</head>
+<body>
+  <script type="application/javascript">
+    var global = window;
+  </script>
+  <app-root></app-root>
+</body>
+</html>
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\main.ts
+
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+import { AppModule } from './app/app.module';
+
+import { defineCustomElements } from '@trimble-oss/modus-web-components/loader';
+
+defineCustomElements()
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch(err => console.error(err));
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\assistant.service.spec.ts
+
+import { TestBed } from '@angular/core/testing';
+
+import { AssistantService } from './assistant.service';
+
+describe('AssistantService', () => {
+  let service: AssistantService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(AssistantService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\assistant.service.ts
+
+import { Injectable } from '@angular/core';
+import { get } from '../config/prod-config';
+import { getItemFromLocalStorage } from '../utils/localstorage-utils';
+import { SharedDataService } from './shared-data.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AssistantService {
+
+  constructor(private sharedDataService: SharedDataService) { }
+
+  public async GetAssistantResponseForMessage(message: string): Promise<string | undefined> {
+    let parameters = {
+      "message": message,
+      "stream": false,
+      "model_id": "gpt-4o",
+      "session_id": this.sharedDataService.getTidIdTokenDecoded().jti,
+    }
+    const formBody = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(parameters).map(([key, value]) => [key, value ?? ''])
+      )
+    );
+
+    const accessToken = getItemFromLocalStorage("accessToken")
+    const response: any = await fetch(get("trimbleAssistantMessageURL"), {
+      headers: new Headers(
+        {
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'application/json'
+        }
+      ),
+      method: 'POST',
+      body: formBody,
+    })
+
+    if (response.status !== 200) {
+      return undefined;
+    }
+
+    const responseData = await response.json();
+    return responseData.message;
+  }
+
+}
+
+
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\authentication.service.spec.ts
+
+import { TestBed } from '@angular/core/testing';
+
+import { AuthenticationService } from './authentication.service';
+
+describe('AuthenticationService', () => {
+  let service: AuthenticationService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(AuthenticationService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\authentication.service.ts
+
+import { Injectable } from '@angular/core';
+import { codeChallenger, codeVerifier, currentTimeInSec } from '../utils/auth-utils';
+import { getItemFromLocalStorage, setItemInLocalStorage, removeAllItemsFromLocalStorage, } from '../utils/localstorage-utils';
+import { env, get } from '../config/prod-config';
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class AuthenticationService {
+
+  constructor() {
+
+  }
+
+  public GetAuthCodeUrl(): string {
+    return getAuthCodeUrl();
+  }
+
+  public LogoutUser(): string {
+    return getLogoutUrl();
+  }
+
+  public async ValidateAuthentication(): Promise<boolean> {
+    let accessToken = getItemFromLocalStorage("accessToken")
+    let authCode = getItemFromLocalStorage("authCode")
+    let refreshToken = getItemFromLocalStorage("refreshToken")
+    let expiresInTime = getItemFromLocalStorage("expiresIn")
+    if (accessToken && accessToken !== "undefined" && authCode && refreshToken && expiresInTime) {
+      return await this.CheckTokenValidity()
+    }
+    return false;
+  }
+
+  public async GetAuthCodeFromURLAndStoreInLocalStorage(URL: string) {
+    const codeRegex = /[?&]code=([^&]+)/;
+    const match = codeRegex.exec(URL);
+    const authCodeValue = match && decodeURIComponent(match[1]);
+    if (authCodeValue) {
+      setItemInLocalStorage("authCode", authCodeValue)
+    }
+  }
+
+  public async GetAccessToken(): Promise<string> {
+    let authorization_code = getItemFromLocalStorage("authCode")
+
+    let parameters = {
+      "grant_type": "authorization_code",
+      "code": authorization_code,
+      "tenantDomain": get("tenantDomain"),
+      "redirect_uri": get("redirectUrl"),
+      "client_id": get("clientId"),
+      "code_verifier": getItemFromLocalStorage("codeVerifier"),
+      "code_challenge": codeChallenger(codeVerifier()),
+      "code_challenge_method": "S256"
+    }
+    const formBody = Object.entries(parameters).map(([key, value]) => encodeURIComponent(key) + '=' + encodeURIComponent(value ?? '')).join('&')
+    const response = await fetch(get("accessTokenUrl"), {
+      headers: new Headers(
+        {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      ),
+      method: 'POST',
+      body: formBody
+    })
+    const responseData = await response.json();
+    setItemInLocalStorage("idToken", responseData.id_token)
+    setItemInLocalStorage("accessToken", responseData.access_token)
+    setItemInLocalStorage("refreshToken", responseData.refresh_token)
+    setItemInLocalStorage("expiresIn", currentTimeInSec() + responseData.expires_in)
+    let authBody: any = {
+      idToken: responseData.id_token
+    };
+    try {
+      const authResponse = await fetch(get("authUrl"), {
+        headers: new Headers(
+          {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${responseData.access_token}`
+          }
+        ),
+        method: 'POST',
+        body: JSON.stringify(authBody)
+      })
+      let authResponseData = await authResponse.json();
+      setItemInLocalStorage("auth", JSON.stringify(authResponseData.body))
+      if (!authResponse.ok) {
+        throw new Error("Network response was not OK", authResponseData);
+      }
+    } catch (error) {
+      console.log("Error occurred during Auth Init, ", error);
+    }
+    return responseData.access_token
+  }
+
+  public async CheckTokenValidity(): Promise<boolean> {
+    const tokenExpiryTime: number | null = parseInt(getItemFromLocalStorage("expiresIn")!)
+    console.log("Token Expiry Time: ", tokenExpiryTime)
+    console.log("Current Time: ", currentTimeInSec())
+    if (tokenExpiryTime) {
+      if (tokenExpiryTime - currentTimeInSec() < 120) {
+        return this.RefreshUsingRefreshToken();
+      }
+      else {
+        return true;
+      }
+    }
+    else {
+      return true;
+    }
+  }
+
+  public async RefreshUsingRefreshToken(): Promise<boolean> {
+    let parameters = {
+      "grant_type": "refresh_token",
+      "refresh_token": getItemFromLocalStorage("refreshToken"),
+      "client_id": get("clientId"),
+      "code_verifier": getItemFromLocalStorage("codeVerifier"),
+      "code_challenge": codeChallenger(codeVerifier()),
+      "code_challenge_method": "S256"
+    }
+    const formBody = Object.entries(parameters).map(([key, value]) => encodeURIComponent(key) + '=' + encodeURIComponent(value ?? '')).join('&')
+    const response: any = await fetch(get("accessTokenUrl"), {
+      headers: new Headers(
+        {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      ),
+      method: 'POST',
+      body: formBody,
+    })
+
+    if (response.status !== 200) {
+      removeAllItemsFromLocalStorage()
+      return false;
+    }
+
+    const responseData = await response.json();
+    setItemInLocalStorage("idToken", responseData.id_token)
+    setItemInLocalStorage("refreshToken", responseData.refresh_token)
+    setItemInLocalStorage("accessToken", responseData.access_token)
+    setItemInLocalStorage("expiresIn", currentTimeInSec() + responseData.expires_in)
+    return true;
+  }
+}
+
+const getAuthCodeUrl = () => {
+  let authCodeUrl = get("authCodeUrl")
+  authCodeUrl += "?client_id=" + get("clientId")
+  authCodeUrl += "&response_type=code"
+  authCodeUrl += "&scope=openid " + get("applicationName")
+  authCodeUrl += "&redirect_uri=" + get("redirectUrl")
+  authCodeUrl += "&code_challenge=" + codeChallenger(codeVerifier())
+  authCodeUrl += "&code_challenge_method=S256"
+  return authCodeUrl;
+}
+
+
+const getLogoutUrl = () => {
+  let logoutUrl = get("logoutUrl")
+  logoutUrl += "?id_token_hint =" + getItemFromLocalStorage("authCode")
+  logoutUrl += "&post_logout_redirect_uri=" + get("logoutRedirectUrl")
+  console.log("Logout URL: ", logoutUrl)
+  localStorage.clear();
+  return logoutUrl;
+}
+
+
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\http-client.service.spec.ts
+
+import { TestBed } from '@angular/core/testing';
+
+import { HttpClientService } from './http-client.service';
+
+describe('HttpClientService', () => {
+  let service: HttpClientService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(HttpClientService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\http-client.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable} from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class HttpClientService {
+
+  constructor(private http: HttpClient) { }
+
+  public getDataFromBackend(url: string, input: string, model: string): Observable<Object> {
+    const params = { input, model }
+    return this.http.get<string>(url, { params });
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\services\shared-data.service.ts
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SharedDataService {
+  private tidIdTokenDecoded: any;
+
+  setTidIdTokenDecoded(value: any) {
+    this.tidIdTokenDecoded = value;
+  }
+
+  getTidIdTokenDecoded() {
+    return this.tidIdTokenDecoded;
+  }
+}
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\styles.css
+
+/* You can add global styles to this file, and also import other style files */
+
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\utils\auth-utils.ts
+
+import { SHA256, enc } from 'crypto-js';
+import { setItemInLocalStorage } from "./localstorage-utils";
+import * as randomstring from 'randomstring'
+
+// Function to generate a code verifier
+function generateCodeVerifier(): string {
+  let codeVerifier = randomstring.generate({
+    length: getLength(),
+    charset: CODE_VERIFIER_CHARSET,
+  })
+  setItemInLocalStorage("codeVerifier", codeVerifier)
+  return codeVerifier
+}
+
+// Function to generate a code challenge from a code verifier
+function generateCodeChallenge(verifier: string): string {
+  const hash = SHA256(verifier);
+  const codeChallenger = enc.Base64.stringify(hash)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  return codeChallenger;
+}
+
+function getLength(): number {
+  return Math.floor(Math.random() * (128 - 43)) + 43;
+}
+
+function getCurrentTimeInSec(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+const CODE_VERIFIER_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890.,-_~";
+
+// Generate and export the code verifier and code challenge
+export const codeVerifier = () => generateCodeVerifier();
+export const codeChallenger = (codeVerifier: string) => generateCodeChallenge(codeVerifier);
+export const currentTimeInSec = () => getCurrentTimeInSec();
+
+// File: C:\Users\ckrishn\projects\TDAAS\TDAAS-Web\src\utils\localstorage-utils.ts
+
+export function getItemFromLocalStorage(key: string) {
+    return localStorage.getItem(key);
+}
+
+export function setItemInLocalStorage(key: string, value: string) {
+    localStorage.setItem(key, value);
+}
+
+export function removeItemFromLocalStorage(key: string) {
+    localStorage.removeItem(key);
+}
+
+export function removeAllItemsFromLocalStorage() {
+    localStorage.clear();
+}

@@ -1,0 +1,39 @@
+.navbar {
+    height: 100px; /* Height of the navbar */
+    width: 100%;   /* Full width */
+    background-color: #333; /* Dark background */
+    color: white;  /* Text color */
+    display: flex; /* Flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    padding: 0 20px; /* Padding around the content */
+    position: relative; /* Ensures it's above the main content */
+    z-index: 20; /* Higher z-index to stay on top of other content */
+  }
+  
+  .navbar h1 {
+    margin: 0; /* Remove default margin */
+    flex: 1; /* Allow the title to take available space */
+  }
+  
+  .navbar button {
+    background-color: #555; /* Button background */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Button padding */
+    cursor: pointer; /* Pointer cursor on hover */
+  }
+  
+  .navbar button:hover {
+    background-color: #777; /* Button hover effect */
+  }
+  
+  .overlay-container {
+    position: absolute; /* Overlay on top of the main app */
+    top: 100px; /* Position below the navbar */
+    left: 0; /* Align to left */
+    width: 100%; /* Full width */
+    height: calc(100% - 100px); /* Remaining height after navbar */
+    z-index: 10; /* Ensure it's above the main app */
+    background-color: rgba(255, 255, 255, 0.9); /* Optional background for visibility */
+  }
+  
